@@ -150,6 +150,18 @@ const translation = i18n.getTranslation({
 });
 ```
 
+#### `getLanguages(): string[]`
+
+Obtiene la lista de idiomas disponibles.
+
+```typescript
+const languages = i18n.getLanguages();
+console.log(languages); // ['es', 'en', 'fr']
+
+// Verificar si un idioma está disponible
+const hasEnglish = i18n.getLanguages().includes('en');
+```
+
 ### Métodos Auxiliares
 
 #### `updateMissingLangAttributes(): void`

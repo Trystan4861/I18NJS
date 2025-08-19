@@ -145,4 +145,56 @@ export class I18n {
   setDefaultLang(lang: string): void {
     this.defaultLang = lang;
   }
+
+  /**
+   * Obtiene la lista de idiomas disponibles
+   * @returns Array con los códigos de idioma disponibles
+   */
+  getLanguages(): string[] {
+    return Object.keys(this.translations);
+  }
+
+  /**
+   * Obtiene estadísticas de traducción
+   * @returns Objeto con estadísticas
+   */
+  getStats(): object {
+    const elements = document.querySelectorAll('[data-i18n-key]');
+    const languages = this.getLanguages();
+    const totalKeys = this.countTranslationKeys();
+    
+    return {
+      totalElements: elements.length,
+      availableLanguages: languages,
+      totalTranslationKeys: totalKeys,
+      currentLang: this.getCurrentLang(),
+      defaultLang: this.defaultLang
+    };
+  }
+
+  /**
+   * Cuenta el total de claves de traducción
+   * @returns Número total de claves
+   */
+  private countTranslationKeys(): number {
+    let count = 0;
+    
+    const countKeys = (obj: TranslationData): void => {
+      for (const key in obj) {
+        if (typeof obj[key] === 'string') {
+          count++;
+        } else if (typeof obj[key] === 'object') {
+          countKeys(obj[key] as TranslationData);
+        }
+      }
+    };
+    
+    // Contar claves del primer idioma disponible
+    const firstLang = this.getLanguages()[0];
+    if (firstLang && this.translations[firstLang]) {
+      countKeys(this.translations[firstLang]);
+    }
+    
+    return count;
+  }
 }
