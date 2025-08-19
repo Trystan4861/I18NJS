@@ -24,3 +24,11 @@ export interface TranslationData {
 export interface TranslationDataset {
   [lang: string]: TranslationData;
 }
+
+export interface I18nStats {
+  totalElements: number;
+  availableLanguages: string[];
+  totalTranslationKeys: number;
+  currentLang: string;
+  defaultLang: string;
+}

@@ -9,12 +9,21 @@ import type {
   TranslateOptions,
   GetTranslationOptions,
   TranslationData,
-  TranslationDataset
+  TranslationDataset,
+  I18nStats
 } from './types/i18n.types';
 
 export class I18n {
-  private defaultLang: string = 'es';
-  private translations: TranslationDataset = {};
+  public defaultLang: string = 'es';
+  public translations: TranslationDataset = {};
+
+  /**
+   * Constructor de la clase I18n
+   * @param defaultLang - Idioma por defecto (opcional)
+   */
+  constructor(defaultLang: string = 'es') {
+    this.defaultLang = defaultLang;
+  }
 
   /**
    * Inicializa la clase I18n con opciones opcionales
@@ -23,6 +32,7 @@ export class I18n {
   init(options: I18nOptions = {}): void {
     if (options.lang) {
       this.defaultLang = options.lang;
+      document.documentElement.lang = options.lang;
     }
   }
 
@@ -57,7 +67,7 @@ export class I18n {
    * @returns La traducción encontrada o la clave original si no existe
    */
   getTranslation(options: GetTranslationOptions): string {
-    const { key, lang = this.defaultLang } = options;
+    const { key, lang = this.getCurrentLang() } = options;
     
     const translation = this.getNestedTranslation(
       this.translations[lang] || {}, 
@@ -104,6 +114,11 @@ export class I18n {
     obj: TranslationData, 
     key: string
   ): string | null {
+    // Manejar casos de null/undefined
+    if (!key || typeof key !== 'string') {
+      return null;
+    }
+
     const keys = key.split('.');
     let current: any = obj;
 
@@ -118,17 +133,7 @@ export class I18n {
     return typeof current === 'string' ? current : null;
   }
 
-  /**
-   * Actualiza los atributos data-i18n-lang de elementos sin este atributo
-   */
-  updateMissingLangAttributes(): void {
-    const currentLang = document.documentElement.lang || this.defaultLang;
-    const elements = document.querySelectorAll('[data-i18n-key]:not([data-i18n-lang])');
-    
-    elements.forEach(element => {
-      element.setAttribute('data-i18n-lang', currentLang);
-    });
-  }
+
 
   /**
    * Obtiene el idioma actual de la aplicación
@@ -147,6 +152,20 @@ export class I18n {
   }
 
   /**
+   * Actualiza los atributos data-i18n-lang faltantes
+   */
+  updateMissingLangAttributes(): void {
+    const currentLang = this.getCurrentLang();
+    const elements = document.querySelectorAll('[data-i18n-key]');
+    
+    elements.forEach(element => {
+      if (!element.getAttribute('data-i18n-lang')) {
+        element.setAttribute('data-i18n-lang', currentLang);
+      }
+    });
+  }
+
+  /**
    * Obtiene la lista de idiomas disponibles
    * @returns Array con los códigos de idioma disponibles
    */
@@ -158,7 +177,7 @@ export class I18n {
    * Obtiene estadísticas de traducción
    * @returns Objeto con estadísticas
    */
-  getStats(): object {
+  getStats(): I18nStats {
     const elements = document.querySelectorAll('[data-i18n-key]');
     const languages = this.getLanguages();
     const totalKeys = this.countTranslationKeys();
