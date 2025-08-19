@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="page.title">Demo I18NJS - Sistema de Internacionalización</title>
+    <link rel="stylesheet" href="css/demo.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 data-i18n-key="page.title">Demo I18NJS - Sistema de Internacionalización</h1>
+            <div class="language-selector">
+                <label data-i18n-key="controls.language">Idioma:</label>
+                <select id="languageSelect">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="welcome-section">
+                <h2 data-i18n-key="sections.welcome.title">Bienvenido</h2>
+                <p data-i18n-key="sections.welcome.description">
+                    Esta es una demostración del sistema de internacionalización I18NJS. 
+                    Cambia el idioma usando el selector superior para ver las traducciones en acción.
+                </p>
+            </section>
+
+            <section class="features-section">
+                <h2 data-i18n-key="sections.features.title">Características</h2>
+                <ul class="features-list">
+                    <li data-i18n-key="sections.features.items.multilevel">Soporte para claves multinivel</li>
+                    <li data-i18n-key="sections.features.items.automatic">Detección automática de idioma</li>
+                    <li data-i18n-key="sections.features.items.dynamic">Traducción dinámica de elementos</li>
+                    <li data-i18n-key="sections.features.items.fallback">Sistema de fallback inteligente</li>
+                </ul>
+            </section>
+
+            <section class="form-section">
+                <h2 data-i18n-key="sections.form.title">Formulario de Ejemplo</h2>
+                <form class="demo-form">
+                    <div class="form-group">
+                        <label for="name" data-i18n-key="form.labels.name">Nombre:</label>
+                        <input type="text" id="name" data-i18n-key="form.placeholders.name" placeholder="Ingresa tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" data-i18n-key="form.labels.email">Email:</label>
+                        <input type="email" id="email" data-i18n-key="form.placeholders.email" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="message" data-i18n-key="form.labels.message">Mensaje:</label>
+                        <textarea id="message" data-i18n-key="form.placeholders.message" placeholder="Escribe tu mensaje aquí"></textarea>
+                    </div>
+                    <button type="submit" data-i18n-key="form.buttons.submit">Enviar</button>
+                    <button type="reset" data-i18n-key="form.buttons.reset">Limpiar</button>
+                </form>
+            </section>
+
+            <section class="status-section">
+                <h2 data-i18n-key="sections.status.title">Estados del Sistema</h2>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <span class="status-icon">✅</span>
+                        <span data-i18n-key="status.completed">Completado</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-icon">⏳</span>
+                        <span data-i18n-key="status.pending">Pendiente</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-icon">❌</span>
+                        <span data-i18n-key="status.error">Error</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-icon">🔄</span>
+                        <span data-i18n-key="status.processing">Procesando</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="controls-section">
+                <h2 data-i18n-key="sections.controls.title">Controles de Prueba</h2>
+                <div class="controls-grid">
+                    <button id="translateAll" data-i18n-key="controls.buttons.translateAll">Traducir Todo</button>
+                    <button id="addElement" data-i18n-key="controls.buttons.addElement">Agregar Elemento</button>
+                    <button id="getTranslation" data-i18n-key="controls.buttons.getTranslation">Obtener Traducción</button>
+                    <button id="updateLang" data-i18n-key="controls.buttons.updateLang">Actualizar Idiomas</button>
+                </div>
+                <div id="output" class="output-area">
+                    <h3 data-i18n-key="controls.output.title">Salida de Pruebas:</h3>
+                    <pre id="outputContent"></pre>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p data-i18n-key="footer.copyright">© 2025 I18NJS Demo - Sistema de Internacionalización</p>
+            <p data-i18n-key="footer.author">Desarrollado por trystan4861</p>
+        </footer>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/demo.js"></script>
+</body>
+</html>
