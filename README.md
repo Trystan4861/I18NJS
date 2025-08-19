@@ -14,7 +14,9 @@ Una clase TypeScript ligera y eficiente para manejar traducciones i18n en aplica
 
 ```bash
 # Clona el repositorio
-git clone <url-del-repositorio>
+git clone https://github.com/Trystan4861/I18NJS.git
+
+# Cambia a la carpeta clonada
 cd I18NJS
 
 # Instala dependencias (si las hay)
