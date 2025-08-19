@@ -62,6 +62,10 @@ function setupEventListeners() {
     demonstrateGetTranslation();
   });
   
+  document.getElementById('getLanguages').addEventListener('click', function() {
+    demonstrateGetLanguages();
+  });
+  
   document.getElementById('updateLang').addEventListener('click', function() {
     i18n.updateMissingLangAttributes();
     logToOutput('🔄 Atributos de idioma actualizados');
@@ -90,11 +94,30 @@ function changeLanguage(lang) {
   // Traducir toda la página
   i18n.translate({ lang: lang });
   
+  // Asegurar que los elementos dinámicos también se traduzcan
+  updateDynamicElements(lang);
+  
   // Actualizar el idioma por defecto de la instancia
   i18n.setDefaultLang(lang);
   
   logToOutput(`🌐 Idioma cambiado a: ${lang}`);
   logToOutput(`📊 Estadísticas actualizadas: ${JSON.stringify(i18n.getStats(), null, 2)}`);
+}
+
+/**
+ * Actualiza las traducciones de elementos dinámicos
+ * @param {string} lang - Código del idioma
+ */
+function updateDynamicElements(lang) {
+  const dynamicElements = document.querySelectorAll('.dynamic-element');
+  dynamicElements.forEach(element => {
+    // Traducir cada elemento dinámico individualmente
+    i18n.translate({ element: element, lang: lang });
+  });
+  
+  if (dynamicElements.length > 0) {
+    logToOutput(`🔄 ${dynamicElements.length} elemento(s) dinámico(s) actualizado(s)`);
+  }
 }
 
 /**
@@ -115,12 +138,18 @@ function addDynamicElement() {
     border-left: 4px solid #2196f3;
   `;
   
+  // Obtener la traducción actual para el contenido
+  const elementAddedText = i18n.getTranslation({ key: 'messages.elementAdded', lang: currentLang });
+  const deleteText = i18n.getTranslation({ key: 'actions.delete', lang: currentLang });
+  
   // Agregar contenido con data-i18n-key
   newElement.innerHTML = `
-    <strong data-i18n-key="messages.elementAdded">Nuevo elemento agregado dinámicamente</strong>
+    <strong data-i18n-key="messages.elementAdded">${elementAddedText}</strong>
     <p>Timestamp: ${new Date().toLocaleTimeString()}</p>
-    <button onclick="this.parentElement.remove()" style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
-      Eliminar
+    <button onclick="this.parentElement.remove()" 
+            data-i18n-key="actions.delete"
+            style="margin-top: 10px; padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      ${deleteText}
     </button>
   `;
   
@@ -132,6 +161,28 @@ function addDynamicElement() {
   i18n.translate({ element: newElement, lang: currentLang });
   
   logToOutput(`➕ Elemento dinámico agregado y traducido a: ${currentLang}`);
+  logToOutput(`   📝 Texto: "${elementAddedText}"`);
+  logToOutput(`   🗑️ Botón: "${deleteText}"`);
+}
+
+/**
+ * Demuestra el uso del método getLanguages
+ */
+function demonstrateGetLanguages() {
+  const availableLanguages = i18n.getLanguages();
+  const currentLang = document.getElementById('languageSelect').value;
+  
+  logToOutput(`🌐 Demostrando getLanguages():`);
+  logToOutput(`📋 Idiomas disponibles: [${availableLanguages.join(', ')}]`);
+  logToOutput(`📊 Total de idiomas: ${availableLanguages.length}`);
+  logToOutput(`🎯 Idioma actual: ${currentLang}`);
+  
+  // Mostrar información adicional de cada idioma
+  availableLanguages.forEach((lang, index) => {
+    const isActive = lang === currentLang ? ' (activo)' : '';
+    const sampleTranslation = i18n.getTranslation({ key: 'page.title', lang });
+    logToOutput(`  ${index + 1}. ${lang.toUpperCase()}${isActive}: "${sampleTranslation}"`);
+  });
 }
 
 /**
@@ -139,6 +190,10 @@ function addDynamicElement() {
  */
 function demonstrateGetTranslation() {
   const currentLang = document.getElementById('languageSelect').value;
+  
+  // Demostrar getLanguages()
+  const availableLanguages = i18n.getLanguages();
+  logToOutput(`🌐 Idiomas disponibles: ${availableLanguages.join(', ')}`);
   
   // Ejemplos de obtención de traducciones
   const examples = [
@@ -228,8 +283,10 @@ window.demoFunctions = {
   clearOutput,
   exportStats,
   changeLanguage,
+  updateDynamicElements,
   addDynamicElement,
-  demonstrateGetTranslation
+  demonstrateGetTranslation,
+  demonstrateGetLanguages
 };
 
 // Agregar estilos para elementos dinámicos

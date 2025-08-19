@@ -15,6 +15,7 @@ const translations = {
         translateAll: 'Traducir Todo',
         addElement: 'Agregar Elemento',
         getTranslation: 'Obtener Traducción',
+        getLanguages: 'Obtener Idiomas',
         updateLang: 'Actualizar Idiomas'
       },
       output: {
@@ -76,6 +77,11 @@ const translations = {
       translationResult: 'Resultado de traducción',
       languageUpdated: 'Idiomas actualizados',
       currentStats: 'Estadísticas actuales'
+    },
+    actions: {
+      delete: 'Eliminar',
+      remove: 'Quitar',
+      close: 'Cerrar'
     }
   },
   en: {
@@ -88,6 +94,7 @@ const translations = {
         translateAll: 'Translate All',
         addElement: 'Add Element',
         getTranslation: 'Get Translation',
+        getLanguages: 'Get Languages',
         updateLang: 'Update Languages'
       },
       output: {
@@ -149,6 +156,11 @@ const translations = {
       translationResult: 'Translation result',
       languageUpdated: 'Languages updated',
       currentStats: 'Current statistics'
+    },
+    actions: {
+      delete: 'Delete',
+      remove: 'Remove',
+      close: 'Close'
     }
   },
   fr: {
@@ -161,6 +173,7 @@ const translations = {
         translateAll: 'Traduire Tout',
         addElement: 'Ajouter Élément',
         getTranslation: 'Obtenir Traduction',
+        getLanguages: 'Obtenir Langues',
         updateLang: 'Mettre à Jour Langues'
       },
       output: {
@@ -222,6 +235,11 @@ const translations = {
       translationResult: 'Résultat de traduction',
       languageUpdated: 'Langues mises à jour',
       currentStats: 'Statistiques actuelles'
+    },
+    actions: {
+      delete: 'Supprimer',
+      remove: 'Retirer',
+      close: 'Fermer'
     }
   }
 };

@@ -26,6 +26,7 @@ const requiredElements = [
   'translateAll',
   'addElement',
   'getTranslation',
+  'getLanguages',
   'updateLang'
 ];
 
@@ -77,11 +78,13 @@ try {
   const hasEnglish = translationsContent.includes('en:');
   const hasFrench = translationsContent.includes('fr:');
   const hasNestedKeys = translationsContent.includes('sections:') && translationsContent.includes('welcome:');
+  const hasActionKeys = translationsContent.includes('actions:') && translationsContent.includes('delete:');
   
   test('Traducciones en español', hasSpanish);
   test('Traducciones en inglés', hasEnglish);
   test('Traducciones en francés', hasFrench);
   test('Claves anidadas', hasNestedKeys);
+  test('Claves de acciones', hasActionKeys);
 } catch (error) {
   test('Lectura de translations.js', false);
 }
@@ -98,11 +101,13 @@ try {
   const hasInit = i18nContent.includes('init(');
   const hasTranslate = i18nContent.includes('translate(');
   const hasGetTranslation = i18nContent.includes('getTranslation(');
+  const hasGetLanguages = i18nContent.includes('getLanguages(');
   
   test('Clase I18n definida', hasClass);
   test('Método init', hasInit);
   test('Método translate', hasTranslate);
   test('Método getTranslation', hasGetTranslation);
+  test('Método getLanguages', hasGetLanguages);
 } catch (error) {
   test('Lectura de i18n.js', false);
 }

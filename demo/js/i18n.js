@@ -145,12 +145,20 @@ class I18n {
   }
 
   /**
+   * Obtiene la lista de idiomas disponibles
+   * @returns {string[]} Array con los códigos de idioma disponibles
+   */
+  getLanguages() {
+    return Object.keys(this.translations);
+  }
+
+  /**
    * Obtiene estadísticas de traducción
    * @returns {Object} Objeto con estadísticas
    */
   getStats() {
     const elements = document.querySelectorAll('[data-i18n-key]');
-    const languages = Object.keys(this.translations);
+    const languages = this.getLanguages();
     const totalKeys = this.countTranslationKeys();
     
     return {
@@ -180,7 +188,7 @@ class I18n {
     };
     
     // Contar claves del primer idioma disponible
-    const firstLang = Object.keys(this.translations)[0];
+    const firstLang = this.getLanguages()[0];
     if (firstLang) {
       countKeys(this.translations[firstLang]);
     }
