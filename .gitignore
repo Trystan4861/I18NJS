@@ -1,0 +1,55 @@
+# Workspaces de Visual Studio Code
+*.code-workspace
+
+# Carpetas de configuración de IDE
+.zencoder/
+.vscode/
+.infoinnova/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Dependencias
+node_modules/
+jspm_packages/
+
+# Archivos de distribución
+dist/
+build/
+lib/
+
+# Archivos de TypeScript
+*.tsbuildinfo
+
+# Archivos de coverage
+coverage/
+*.lcov
+
+# Archivos de cache
+.npm
+.eslintcache
+.stylelintcache
+
+# Archivos de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Archivos de lock (opcional, comentar si se quiere versionar)
+# package-lock.json
+# yarn.lock
