@@ -10,12 +10,17 @@ import type {
   GetTranslationOptions,
   TranslationData,
   TranslationDataset,
-  I18nStats
+  I18nStats,
+  CacheEntry,
+  CacheStorage
 } from './types/i18n.types';
 
 export class I18n {
   public defaultLang: string = 'es';
   public translations: TranslationDataset = {};
+  private cacheStorage: CacheStorage = {};
+  private readonly CACHE_KEY = 'i18n_cache_storage';
+  private readonly DEFAULT_CACHE_LIFETIME_HOURS = 24;
 
   /**
    * Constructor de la clase I18n
@@ -23,16 +28,24 @@ export class I18n {
    */
   constructor(defaultLang: string = 'es') {
     this.defaultLang = defaultLang;
+    this.loadCacheFromStorage();
   }
 
   /**
    * Inicializa la clase I18n con opciones opcionales
    * @param options - Objeto con configuraciones opcionales
    */
-  init(options: I18nOptions = {}): void {
+  async init(options: I18nOptions = {}): Promise<void> {
     if (options.lang) {
       this.defaultLang = options.lang;
       document.documentElement.lang = options.lang;
+    }
+
+    if (options.remoteUrl) {
+      await this.loadFromRemoteUrl(
+        options.remoteUrl, 
+        options.cacheLifetimeHours || this.DEFAULT_CACHE_LIFETIME_HOURS
+      );
     }
   }
 
@@ -215,5 +228,177 @@ export class I18n {
     }
     
     return count;
+  }
+
+  /**
+   * Carga traducciones desde una URL remota con caché
+   * @param url - URL del archivo de traducciones
+   * @param cacheLifetimeHours - Tiempo de vida del caché en horas
+   */
+  async loadFromRemoteUrl(url: string, cacheLifetimeHours: number = this.DEFAULT_CACHE_LIFETIME_HOURS): Promise<void> {
+    try {
+      // Verificar si existe caché válido
+      const cachedData = this.getCachedData(url);
+      if (cachedData) {
+        this.translations = { ...this.translations, ...cachedData };
+        return;
+      }
+
+      // Descargar datos remotos
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error al descargar traducciones: ${response.status} ${response.statusText}`);
+      }
+
+      const translationData: TranslationDataset = await response.json();
+      
+      // Guardar en caché
+      this.saveToCacheStorage(url, translationData, cacheLifetimeHours);
+      
+      // Cargar traducciones
+      this.translations = { ...this.translations, ...translationData };
+      
+    } catch (error) {
+      console.error('Error cargando traducciones remotas:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene datos del caché si están disponibles y son válidos
+   * @param url - URL del recurso
+   * @returns Datos de traducción o null si no hay caché válido
+   */
+  private getCachedData(url: string): TranslationDataset | null {
+    const cacheEntry = this.cacheStorage[url];
+    
+    if (!cacheEntry) {
+      return null;
+    }
+
+    const now = Date.now();
+    const cacheAge = now - cacheEntry.timestamp;
+    const maxAge = cacheEntry.lifetimeHours * 60 * 60 * 1000; // Convertir horas a milisegundos
+
+    if (cacheAge > maxAge) {
+      // Caché expirado, eliminarlo
+      delete this.cacheStorage[url];
+      this.saveCacheToStorage();
+      return null;
+    }
+
+    return cacheEntry.data;
+  }
+
+  /**
+   * Guarda datos en el caché
+   * @param url - URL del recurso
+   * @param data - Datos de traducción
+   * @param lifetimeHours - Tiempo de vida en horas
+   */
+  private saveToCacheStorage(url: string, data: TranslationDataset, lifetimeHours: number): void {
+    const cacheEntry: CacheEntry = {
+      data,
+      timestamp: Date.now(),
+      url,
+      lifetimeHours
+    };
+
+    this.cacheStorage[url] = cacheEntry;
+    this.saveCacheToStorage();
+  }
+
+  /**
+   * Carga el caché desde localStorage
+   */
+  private loadCacheFromStorage(): void {
+    try {
+      if (typeof localStorage === 'undefined') {
+        return;
+      }
+
+      const cached = localStorage.getItem(this.CACHE_KEY);
+      if (cached) {
+        this.cacheStorage = JSON.parse(cached);
+        // Limpiar entradas expiradas al cargar
+        this.cleanExpiredCache();
+      }
+    } catch (error) {
+      console.error('Error cargando caché desde localStorage:', error);
+      this.cacheStorage = {};
+    }
+  }
+
+  /**
+   * Guarda el caché en localStorage
+   */
+  private saveCacheToStorage(): void {
+    try {
+      if (typeof localStorage === 'undefined') {
+        return;
+      }
+
+      localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.cacheStorage));
+    } catch (error) {
+      console.error('Error guardando caché en localStorage:', error);
+    }
+  }
+
+  /**
+   * Limpia entradas de caché expiradas
+   */
+  private cleanExpiredCache(): void {
+    const now = Date.now();
+    let hasExpiredEntries = false;
+
+    for (const url in this.cacheStorage) {
+      const entry = this.cacheStorage[url];
+      if (!entry) continue;
+      
+      const cacheAge = now - entry.timestamp;
+      const maxAge = entry.lifetimeHours * 60 * 60 * 1000;
+
+      if (cacheAge > maxAge) {
+        delete this.cacheStorage[url];
+        hasExpiredEntries = true;
+      }
+    }
+
+    if (hasExpiredEntries) {
+      this.saveCacheToStorage();
+    }
+  }
+
+  /**
+   * Limpia todo el caché
+   */
+  clearCache(): void {
+    this.cacheStorage = {};
+    this.saveCacheToStorage();
+  }
+
+  /**
+   * Obtiene información del caché
+   * @returns Objeto con información del caché
+   */
+  getCacheInfo(): { [url: string]: { timestamp: number; lifetimeHours: number; isExpired: boolean } } {
+    const now = Date.now();
+    const info: { [url: string]: { timestamp: number; lifetimeHours: number; isExpired: boolean } } = {};
+
+    for (const url in this.cacheStorage) {
+      const entry = this.cacheStorage[url];
+      if (!entry) continue;
+      
+      const cacheAge = now - entry.timestamp;
+      const maxAge = entry.lifetimeHours * 60 * 60 * 1000;
+
+      info[url] = {
+        timestamp: entry.timestamp,
+        lifetimeHours: entry.lifetimeHours,
+        isExpired: cacheAge > maxAge
+      };
+    }
+
+    return info;
   }
 }

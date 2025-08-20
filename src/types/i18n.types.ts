@@ -5,6 +5,8 @@
 
 export interface I18nOptions {
   lang?: string;
+  remoteUrl?: string;
+  cacheLifetimeHours?: number;
 }
 
 export interface TranslateOptions {
@@ -31,4 +33,15 @@ export interface I18nStats {
   totalTranslationKeys: number;
   currentLang: string;
   defaultLang: string;
+}
+
+export interface CacheEntry {
+  data: TranslationDataset;
+  timestamp: number;
+  url: string;
+  lifetimeHours: number;
+}
+
+export interface CacheStorage {
+  [url: string]: CacheEntry;
 }

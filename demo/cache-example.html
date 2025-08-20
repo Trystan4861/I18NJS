@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I18n Cache Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .cache-info {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>I18n Cache Functionality Demo</h1>
+    
+    <div class="demo-section">
+        <h2>Cargar traducciones desde URL remota</h2>
+        <p>Esta demo simula la carga de traducciones desde URLs remotas con caché local.</p>
+        
+        <button onclick="loadTranslations1()">Cargar Traducciones 1 (6 horas de caché)</button>
+        <button onclick="loadTranslations2()">Cargar Traducciones 2 (12 horas de caché)</button>
+        <button onclick="loadTranslations3()">Cargar Traducciones 3 (1 hora de caché)</button>
+        
+        <div id="loadStatus"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Elementos traducibles</h2>
+        <p data-i18n-key="welcome">Bienvenido</p>
+        <p data-i18n-key="hello">Hola</p>
+        <p data-i18n-key="goodbye">Adiós</p>
+        <p data-i18n-key="nested.deep.value">Valor anidado</p>
+        
+        <button onclick="translateToSpanish()">Traducir a Español</button>
+        <button onclick="translateToEnglish()">Traducir a Inglés</button>
+    </div>
+
+    <div class="demo-section">
+        <h2>Gestión de caché</h2>
+        <button onclick="showCacheInfo()">Mostrar información del caché</button>
+        <button onclick="clearCache()">Limpiar caché</button>
+        
+        <div id="cacheInfo" class="cache-info"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Estadísticas</h2>
+        <button onclick="showStats()">Mostrar estadísticas</button>
+        <div id="stats" class="cache-info"></div>
+    </div>
+
+    <script src="../dist/js/i18n.js"></script>
+    <script>
+        // Crear instancia de I18n
+        const i18n = new I18n('es');
+        
+        // Simular datos de traducción para diferentes URLs
+        const mockTranslations1 = {
+            es: {
+                welcome: 'Bienvenido',
+                hello: 'Hola',
+                nested: {
+                    deep: {
+                        value: 'Valor anidado profundo'
+                    }
+                }
+            },
+            en: {
+                welcome: 'Welcome',
+                hello: 'Hello',
+                nested: {
+                    deep: {
+                        value: 'Deep nested value'
+                    }
+                }
+            }
+        };
+
+        const mockTranslations2 = {
+            es: {
+                goodbye: 'Adiós',
+                farewell: 'Despedida'
+            },
+            en: {
+                goodbye: 'Goodbye',
+                farewell: 'Farewell'
+            }
+        };
+
+        const mockTranslations3 = {
+            es: {
+                morning: 'Buenos días',
+                evening: 'Buenas tardes'
+            },
+            en: {
+                morning: 'Good morning',
+                evening: 'Good evening'
+            }
+        };
+
+        // Mock de fetch para simular respuestas de servidor
+        const originalFetch = window.fetch;
+        window.fetch = function(url) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let data;
+                    if (url.includes('translations1.json')) {
+                        data = mockTranslations1;
+                    } else if (url.includes('translations2.json')) {
+                        data = mockTranslations2;
+                    } else if (url.includes('translations3.json')) {
+                        data = mockTranslations3;
+                    } else {
+                        resolve({
+                            ok: false,
+                            status: 404,
+                            statusText: 'Not Found'
+                        });
+                        return;
+                    }
+                    
+                    resolve({
+                        ok: true,
+                        json: () => Promise.resolve(data)
+                    });
+                }, 500); // Simular latencia de red
+            });
+        };
+
+        async function loadTranslations1() {
+            const status = document.getElementById('loadStatus');
+            status.innerHTML = '<span class="success">Cargando traducciones 1...</span>';
+            
+            try {
+                await i18n.loadFromRemoteUrl('https://example.com/translations1.json', 6);
+                status.innerHTML = '<span class="success">✓ Traducciones 1 cargadas correctamente (caché: 6 horas)</span>';
+            } catch (error) {
+                status.innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function loadTranslations2() {
+            const status = document.getElementById('loadStatus');
+            status.innerHTML = '<span class="success">Cargando traducciones 2...</span>';
+            
+            try {
+                await i18n.loadFromRemoteUrl('https://example.com/translations2.json', 12);
+                status.innerHTML = '<span class="success">✓ Traducciones 2 cargadas correctamente (caché: 12 horas)</span>';
+            } catch (error) {
+                status.innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function loadTranslations3() {
+            const status = document.getElementById('loadStatus');
+            status.innerHTML = '<span class="success">Cargando traducciones 3...</span>';
+            
+            try {
+                await i18n.loadFromRemoteUrl('https://example.com/translations3.json', 1);
+                status.innerHTML = '<span class="success">✓ Traducciones 3 cargadas correctamente (caché: 1 hora)</span>';
+            } catch (error) {
+                status.innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+
+        function translateToSpanish() {
+            i18n.translate({ lang: 'es' });
+        }
+
+        function translateToEnglish() {
+            i18n.translate({ lang: 'en' });
+        }
+
+        function showCacheInfo() {
+            const cacheInfo = i18n.getCacheInfo();
+            const infoDiv = document.getElementById('cacheInfo');
+            
+            if (Object.keys(cacheInfo).length === 0) {
+                infoDiv.textContent = 'No hay datos en caché';
+                return;
+            }
+
+            let infoText = 'Información del caché:\n\n';
+            for (const [url, info] of Object.entries(cacheInfo)) {
+                const date = new Date(info.timestamp);
+                infoText += `URL: ${url}\n`;
+                infoText += `Timestamp: ${date.toLocaleString()}\n`;
+                infoText += `Tiempo de vida: ${info.lifetimeHours} horas\n`;
+                infoText += `Expirado: ${info.isExpired ? 'Sí' : 'No'}\n\n`;
+            }
+            
+            infoDiv.textContent = infoText;
+        }
+
+        function clearCache() {
+            i18n.clearCache();
+            document.getElementById('cacheInfo').textContent = 'Caché limpiado';
+        }
+
+        function showStats() {
+            const stats = i18n.getStats();
+            const statsDiv = document.getElementById('stats');
+            
+            const statsText = `Estadísticas de I18n:
+
+Elementos totales: ${stats.totalElements}
+Idiomas disponibles: ${stats.availableLanguages.join(', ')}
+Claves de traducción: ${stats.totalTranslationKeys}
+Idioma actual: ${stats.currentLang}
+Idioma por defecto: ${stats.defaultLang}`;
+            
+            statsDiv.textContent = statsText;
+        }
+
+        // Inicializar con algunas traducciones básicas
+        i18n.loadTranslations({
+            es: {
+                welcome: 'Bienvenido (local)',
+                hello: 'Hola (local)',
+                goodbye: 'Adiós (local)'
+            },
+            en: {
+                welcome: 'Welcome (local)',
+                hello: 'Hello (local)',
+                goodbye: 'Goodbye (local)'
+            }
+        });
+
+        // Traducir elementos iniciales
+        i18n.translate();
+    </script>
+</body>
+</html>
